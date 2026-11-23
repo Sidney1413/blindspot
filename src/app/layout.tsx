@@ -19,18 +19,19 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: "Blindspot — Co-Founder Equity Diagnostics",
+  title: "Blindspot — Founder Partnership Intelligence",
   description:
-    "Catch the landmines before you sign. Blindspot matches high-stakes co-founder equity decisions against real-world post-mortems.",
+    "Review founder ownership, commitment, decisions, finances, roles, and work ownership before you commit.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-slate-950 text-slate-200">{children}</body>
+      <body className="min-h-full bg-background text-foreground">{children}</body>
     </html>
   );
 }

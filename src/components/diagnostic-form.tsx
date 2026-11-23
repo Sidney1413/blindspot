@@ -23,7 +23,13 @@ import type {
 } from "@/lib/types";
 import { InfoIcon, SpinnerIcon } from "./icons";
 
+function isValidRunway(value: string) {
+  const months = Number.parseInt(value, 10);
+  return !Number.isNaN(months) && months >= 0 && months <= 120;
+}
+
 type Props = {
+  stage: "form" | "loading" | "results";
   equitySplit: EquitySplit;
   vesting: VestingSchedule;
   runwayMonths: string;
@@ -36,7 +42,7 @@ type Props = {
   departureTerms: DepartureTerms;
   customSplitText: string;
   analyzing: boolean;
-  aiConsent: boolean;
+  submissionError: string | null;
   onEquity: (v: EquitySplit) => void;
   onVesting: (v: VestingSchedule) => void;
   onRunway: (v: string) => void;
@@ -48,55 +54,65 @@ type Props = {
   onHistory: (v: WorkingHistory) => void;
   onDeparture: (v: DepartureTerms) => void;
   onCustomSplit: (v: string) => void;
-  onAiConsent: (v: boolean) => void;
   onSubmit: () => void;
 };
 
 export function DiagnosticForm(props: Props) {
   const [showVestHelp, setShowVestHelp] = useState(false);
   const [concernError, setConcernError] = useState(false);
+  const [runwayError, setRunwayError] = useState(false);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!props.primaryConcern.trim()) {
-      setConcernError(true);
+  function validateAndSubmit() {
+    const invalidConcern =
+      !props.primaryConcern.trim() || props.primaryConcern.trim().length > 1000;
+    const invalidRunway = !isValidRunway(props.runwayMonths);
+    setConcernError(invalidConcern);
+    setRunwayError(invalidRunway);
+    if (invalidConcern || invalidRunway) {
       return;
     }
-    setConcernError(false);
     props.onSubmit();
   }
 
-  return (
-    <section id="diagnostic" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
-      <div className="glass-card glow-border relative overflow-hidden rounded-3xl p-6 sm:p-8">
-        <div className="mb-8 border-b border-white/10 pb-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300/80">
-            Stage 1 · Comprehensive Telemetry
-          </p>
-          <h2 className="mt-1 text-2xl font-semibold text-slate-50 sm:text-3xl">
-            Co-Founder Partnership Diagnostic
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-            Evaluate your founding team across all six critical dimensions: equity fairness, commitment, governance, financial pressure, trust, and departure protection.
-          </p>
-        </div>
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    validateAndSubmit();
+  }
 
-        <form noValidate className="space-y-8" onSubmit={handleSubmit}>
-          {/* Section 1: Equity, Workload & Governance */}
+  return (
+    <>
+      <section
+        id="diagnostic"
+        className={
+          props.stage === "form"
+            ? "mx-auto max-w-6xl px-4 pb-10 sm:px-6"
+            : "hidden"
+        }
+      >
+        {props.submissionError ? (
+          <p
+            className="mb-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
+            role="alert"
+          >
+            {props.submissionError}
+          </p>
+        ) : null}
+        <div className="glass-card glow-border relative overflow-hidden rounded-3xl p-5 sm:p-7">
+          <form noValidate className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <div className="mb-4 flex items-center gap-2">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-500/20 text-xs font-bold text-cyan-300">
+            <div className="mb-3 flex items-center gap-2.5">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-sage-soft text-xs font-semibold text-brand-forest-strong">
                 1
               </span>
-              <h3 className="text-base font-semibold text-slate-200">
-                Partnership Structure & Decision Authority
-              </h3>
+              <h2 className="text-base font-semibold text-brand-forest">
+                Ownership &amp; commitment
+              </h2>
             </div>
 
-            <div className="grid gap-5 sm:grid-cols-2">
-              <label className="flex flex-col gap-2">
+            <div className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+              <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-slate-200">
-                  Co-Founder Equity Split
+                  How will you split ownership?
                 </span>
                 <select
                   className="field"
@@ -112,23 +128,23 @@ export function DiagnosticForm(props: Props) {
               </label>
 
               {props.equitySplit === "custom" ? (
-                <label className="flex flex-col gap-2">
+                <label className="flex flex-col gap-1.5">
                   <span className="text-sm font-medium text-slate-200">
-                    Custom Split Description
+                    Describe your ownership split
                   </span>
                   <input
                     type="text"
                     className="field"
-                    placeholder="e.g. 45/45/10 with an unallocated option pool"
+                    placeholder="e.g. 45/45, with 10% set aside for future hires"
                     maxLength={100}
                     value={props.customSplitText}
                     onChange={(e) => props.onCustomSplit(e.target.value)}
                   />
                 </label>
               ) : (
-                <label className="flex flex-col gap-2">
+                <label className="flex flex-col gap-1.5">
                   <span className="text-sm font-medium text-slate-200">
-                    Contribution & Workload Balance
+                    How does your work compare?
                   </span>
                   <select
                     className="field"
@@ -146,9 +162,9 @@ export function DiagnosticForm(props: Props) {
                 </label>
               )}
 
-              <label className="flex flex-col gap-2">
+              <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-slate-200">
-                  Time Commitment & Dedication
+                  How much time can each person commit?
                 </span>
                 <select
                   className="field"
@@ -165,9 +181,9 @@ export function DiagnosticForm(props: Props) {
                 </select>
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-slate-200">
-                  Governance & Deadlock Protocol
+                  How will you make important decisions?
                 </span>
                 <select
                   className="field"
@@ -186,24 +202,23 @@ export function DiagnosticForm(props: Props) {
             </div>
           </div>
 
-          {/* Section 2: Protection, Finances & Relationship Dynamic */}
-          <div className="border-t border-white/10 pt-6">
-            <div className="mb-4 flex items-center gap-2">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-500/20 text-xs font-bold text-cyan-300">
+          <div className="border-t border-brand-line pt-5">
+            <div className="mb-3 flex items-center gap-2.5">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-sage-soft text-xs font-semibold text-brand-forest-strong">
                 2
               </span>
-              <h3 className="text-base font-semibold text-slate-200">
-                Finances, Protection & Alignment
-              </h3>
+              <h2 className="text-base font-semibold text-brand-forest">
+                Money &amp; agreements
+              </h2>
             </div>
 
-            <div className="grid gap-5 sm:grid-cols-2">
-              <label className="flex flex-col gap-2">
+            <div className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+              <label className="flex flex-col gap-1.5">
                 <span className="flex items-center gap-2 text-sm font-medium text-slate-200">
                   Vesting Schedule
                   <button
                     type="button"
-                    className="text-cyan-300/80 transition hover:text-cyan-200"
+                    className="text-brand-sage-deep transition hover:text-brand-forest"
                     aria-label="What is vesting?"
                     aria-expanded={showVestHelp}
                     onClick={() => setShowVestHelp((open) => !open)}
@@ -212,8 +227,8 @@ export function DiagnosticForm(props: Props) {
                   </button>
                 </span>
                 {showVestHelp ? (
-                  <p className="rounded-2xl border border-cyan-400/20 bg-slate-950/90 p-3 text-xs leading-5 text-slate-300 shadow-[0_0_24px_rgba(34,211,238,0.12)]">
-                    Vesting protects the venture: founders earn equity over 4 years with a 1-year cliff. Leaving in year one forfeits unearned shares. Immediate grants allow a departing co-founder to walk away with full equity.
+                  <p className="rounded-2xl border border-brand-line bg-brand-surface p-3 text-xs leading-5 text-slate-300 shadow-[0_8px_24px_rgba(25,61,46,0.08)]">
+                    A share-earning plan lets founders earn shares over time. For example, a four-year plan may wait one year before any shares are earned; that wait is called a “cliff.” Shares assigned right away may not depend on how long a founder stays. The written agreement sets the actual rules.
                   </p>
                 ) : null}
                 <select
@@ -231,9 +246,9 @@ export function DiagnosticForm(props: Props) {
                 </select>
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-slate-200">
-                  Departure Terms & IP Protection
+                  What have you agreed if someone leaves or work is created?
                 </span>
                 <select
                   className="field"
@@ -250,9 +265,9 @@ export function DiagnosticForm(props: Props) {
                 </select>
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-slate-200">
-                  Personal Financial Runway in Months
+                  How many months can you cover your personal expenses with your savings?
                 </span>
                 <input
                   className="field"
@@ -261,15 +276,28 @@ export function DiagnosticForm(props: Props) {
                   max={120}
                   inputMode="numeric"
                   required
+                  aria-invalid={runwayError}
+                  aria-describedby={runwayError ? "runway-error" : undefined}
                   value={props.runwayMonths}
-                  onChange={(e) => props.onRunway(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    props.onRunway(value);
+                    if (runwayError && isValidRunway(value)) {
+                      setRunwayError(false);
+                    }
+                  }}
                   placeholder="e.g. 6"
                 />
+                {runwayError ? (
+                  <p id="runway-error" className="text-xs font-medium text-rose-800">
+                    Enter a value from 0 to 120 months.
+                  </p>
+                ) : null}
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-slate-200">
-                  Salary & Compensation Expectations
+                  What do you expect about pay?
                 </span>
                 <select
                   className="field"
@@ -286,9 +314,9 @@ export function DiagnosticForm(props: Props) {
                 </select>
               </label>
 
-              <label className="flex flex-col gap-2 sm:col-span-2">
+              <label className="flex flex-col gap-1.5 sm:col-span-2">
                 <span className="text-sm font-medium text-slate-200">
-                  Working History & Collaboration Dynamic
+                  How well have you worked together?
                 </span>
                 <select
                   className="field"
@@ -305,16 +333,17 @@ export function DiagnosticForm(props: Props) {
                 </select>
               </label>
 
-              <label className="flex flex-col gap-2 sm:col-span-2">
+              <label className="flex flex-col gap-1.5 sm:col-span-2">
                 <span className="text-sm font-medium text-slate-200">
-                  Primary Qualitative Concern <span className="text-rose-400">*</span>
+                  What worries you most before you sign?{" "}
+                  <span className="text-rose-800">*</span>
                 </span>
                 <textarea
                   required
                   maxLength={1000}
                   aria-invalid={concernError}
                   className={`field min-h-[110px] resize-y ${
-                    concernError ? "border-rose-500/80 focus:border-rose-400" : ""
+                    concernError ? "border-rose-600/80 focus:border-rose-700" : ""
                   }`}
                   value={props.primaryConcern}
                   onChange={(e) => {
@@ -323,59 +352,37 @@ export function DiagnosticForm(props: Props) {
                     }
                     props.onConcern(e.target.value);
                   }}
-                  placeholder="What are you most worried about before you sign? Deadlock, someone leaving, asymmetric effort, cash pressure, intellectual property..."
+                  placeholder="For example: how you'll make decisions, differences in work hours, personal money, or who owns the product and code."
                 />
                 {concernError ? (
-                  <p className="text-xs font-medium text-rose-400">
-                    Please describe your primary concern before running your Blindspot check.
+                  <p className="text-xs font-medium text-rose-800">
+                    Please tell us what worries you most before continuing.
                   </p>
                 ) : null}
               </label>
             </div>
           </div>
 
-          {/* Privacy & Legal Consent Notice */}
-          <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-4 text-xs leading-relaxed text-slate-400">
-            <span className="font-semibold text-slate-300">Privacy & Diagnostic Notice:</span>{" "}
-            Diagnostic answers are processed through Blindspot&apos;s deterministic scoring engine first.
-            Google Gemini is only used if you explicitly consent below. When enabled, your submitted
-            founder answers are sent to Google&apos;s Gemini API for contextual analysis and are not sent
-            to the Gemini service otherwise. No passwords, credentials, or bank account numbers are collected.
-            Blindspot provides educational diagnostic assessments and is not a substitute for licensed legal,
-            tax, or financial advice.
-          </div>
-
-          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-4 text-sm leading-6 text-slate-300">
-            <input
-              type="checkbox"
-              checked={props.aiConsent}
-              onChange={(e) => props.onAiConsent(e.target.checked)}
-              className="mt-1 h-4 w-4 accent-cyan-400"
-            />
-            <span>
-              <span className="font-semibold text-slate-200">Optional: send my answers to Gemini for AI analysis.</span>{" "}
-              This sends the founder form responses described above to Google Gemini; leave unchecked to run only the local deterministic engine.
-            </span>
-          </label>
-
           <div className="pt-2">
             <button
-              type="submit"
+              type="button"
+              onClick={validateAndSubmit}
               disabled={props.analyzing}
-              className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-500 px-6 py-4 text-sm font-semibold text-slate-950 shadow-[0_0_32px_rgba(34,211,238,0.35)] transition hover:brightness-110 disabled:cursor-wait disabled:opacity-90"
+              className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand-forest-strong px-6 py-4 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(32,75,55,0.14)] transition-colors hover:bg-brand-forest-deep disabled:cursor-not-allowed disabled:opacity-70"
             >
               {props.analyzing ? (
                 <>
                   <SpinnerIcon className="h-4 w-4" />
-                  Running Comprehensive Diagnostic & AI Analysis…
+                  Reviewing your answers…
                 </>
               ) : (
                 "Run Blindspot Diagnostic"
               )}
             </button>
           </div>
-        </form>
-      </div>
-    </section>
+          </form>
+        </div>
+      </section>
+    </>
   );
 }

@@ -95,15 +95,79 @@ export type PrioritizedActions = {
   needsClarification: string[];
 };
 
+export type DiagnosticEvidenceField = keyof DiagnosticInputs;
+
+export type AnalysisEvidence = {
+  field: DiagnosticEvidenceField;
+  label: string;
+  answer: string;
+};
+
+export type FindingKind =
+  | "risk"
+  | "contradiction"
+  | "missing_agreement"
+  | "unverified_assumption";
+
+export type RiskSeverity = "high" | "moderate" | "low";
+export type RiskLikelihood = "high" | "moderate" | "low" | "uncertain";
+export type RiskPriority = "immediate" | "before_signing" | "monitor";
+
+export type RiskFinding = {
+  id: string;
+  kind: FindingKind;
+  title: string;
+  severity: RiskSeverity;
+  likelihood: RiskLikelihood;
+  priority: RiskPriority;
+  priorityRationale: string;
+  evidence: AnalysisEvidence[];
+  inference: string;
+  consequence: string;
+  recommendation: string;
+  confirmationNeeded: string[];
+};
+
+export type RiskInterconnection = {
+  title: string;
+  findingIds: string[];
+  mechanism: string;
+};
+
+export type AnswerConflict = {
+  findingId: string;
+  mismatch: string;
+};
+
+export type AnalysisAction = {
+  findingIds: string[];
+  action: string;
+};
+
+export type AnalysisActionPlan = {
+  immediate: AnalysisAction[];
+  beforeSigning: AnalysisAction[];
+  monitoring: AnalysisAction[];
+};
+
 export type AIAnalysisResult = {
   isAIGenerated: boolean;
   modelUsed?: string;
   executiveSummary?: string;
-  interconnectedRisks: InterconnectedRisk[];
-  contradictions: ContradictionItem[];
-  overlookedWeaknesses: OverlookedWeakness[];
-  prioritizedActions: PrioritizedActions;
-  discussionQuestions: string[];
+  executiveVerdict?: string;
+  findings?: RiskFinding[];
+  topPriorityFindingId?: string;
+  topPriorityRationale?: string;
+  interconnections?: RiskInterconnection[];
+  answerConflicts?: AnswerConflict[];
+  actionPlan?: AnalysisActionPlan;
+  additionalUnknowns?: string[];
+  analysisWarnings?: string[];
+  interconnectedRisks?: InterconnectedRisk[];
+  contradictions?: ContradictionItem[];
+  overlookedWeaknesses?: OverlookedWeakness[];
+  prioritizedActions?: PrioritizedActions;
+  discussionQuestions?: string[];
   customizedScript?: string;
 };
 
@@ -124,4 +188,12 @@ export type DiagnosticResult = {
   explanations?: string[];
   dimensions?: DimensionScore[];
   aiAnalysis?: AIAnalysisResult;
+  aiStatus?: "available" | "unavailable";
+  aiFailure?:
+    | "configuration"
+    | "rate_limit"
+    | "timeout"
+    | "api_error"
+    | "invalid_response";
+  aiFailureMessage?: string;
 };

@@ -18,51 +18,51 @@ import type {
 const PATTERNS: Record<string, FailurePattern> = {
   deadlock: {
     id: "deadlock",
-    title: "50/50 Deadlock Trap",
-    tag: "Governance",
-    stat: "In Founder’s Dilemmas research, ~65% of startups face a co-founder conflict — and equal splits without a tie-breaker are the most common freeze point.",
+    title: "No agreed way to break a tie",
+    tag: "Big decisions",
+    stat: "If both founders must approve a decision, a disagreement can stop the business from moving forward.",
     story:
-      "Two technical co-founders of a B2B SaaS company split equity 50/50 with no deadlock clause. Eighteen months in they disagreed on whether to raise or stay bootstrapped. The board could not vote. Payroll slipped two weeks. A term sheet died in diligence when counsel flagged an unresolvable stalemate. The company wound down with a working product and zero proceeds for either founder.",
+      "Example: Two founders own equal shares and both must approve major decisions. They disagree about whether to raise money or keep costs low. With no tie-break rule, neither can move the decision forward.",
   },
   noVest: {
     id: "noVest",
-    title: "Unvested Walk-Away",
-    tag: "Vesting",
-    stat: "Market-standard founder grants vest over 4 years with a 1-year cliff. Immediate grants let a departing founder keep 100% of a stake they no longer earn.",
+    title: "Shares are given up front",
+    tag: "Shares",
+    stat: "Without a plan for earning shares over time, a founder may keep all assigned shares after leaving.",
     story:
-      "A consumer app’s ‘idea’ co-founder received 40% on day one with no vesting. They left after seven months for a salaried job. The remaining founder kept building for two years, then lost a Series A because the cap table showed a large inactive holder who would not sign a reverse vesting amendment. Investors walked. The operating founder later said the unsigned handshake was the only decision they would undo.",
+      "Example: A founder receives all of their shares at the start, then leaves early. The remaining founder continues the work, but the agreement does not say whether any shares can be returned or how the company keeps operating.",
   },
   resentment: {
     id: "resentment",
-    title: "Steep Split Resentment",
-    tag: "Contribution",
-    stat: "Post-mortems repeatedly show 70/30 (and steeper) splits without a contribution review clause correlate with quiet quitting by the minority founder within 12–18 months.",
+    title: "Ownership and ongoing work may not match",
+    tag: "Work and shares",
+    stat: "If one founder does much more of the ongoing work than the ownership split suggests, both founders may see the arrangement as unfair.",
     story:
-      "A hardware startup granted 70/30 because one founder ‘brought the idea.’ The 30% founder shipped the firmware, ran suppliers, and closed the first five customers. When they asked to rebalance, the majority holder refused. The minority founder disengaged, a key supplier relationship collapsed, and the company missed a CES window it never recovered. The autopsy cited ‘unspoken labor vs. ownership mismatch,’ not the product.",
+      "Example: One founder's share is based on the original idea, while the other later handles most of the building and customer work. If they never agree on how to account for those contributions, frustration can grow.",
   },
   runway: {
     id: "runway",
-    title: "Personal Runway Collapse",
-    tag: "Cash",
-    stat: "CB Insights consistently ranks running out of cash among the top failure causes (~29% of post-mortems). Personal runway under 6 months is a leading trigger for panic dilution or a bad 50/50 ‘just sign it’ deal.",
+    title: "Personal savings may run short",
+    tag: "Personal money",
+    stat: "Limited personal savings can put pressure on a founder to earn income or make decisions sooner. This does not tell us how much cash the company has.",
     story:
-      "Two co-founders incorporated after one had three months of savings left. They signed a 50/50, no-vesting agreement in a weekend scramble to ‘make it official’ before a friends-and-family round. The cash-short founder took a consulting gig six weeks later. The round never closed. Equity was already locked. The remaining founder could not recapture the idle shares without a lawsuit they could not afford.",
+      "Example: One founder's savings may not cover their expenses for long, while the company has no agreed salary plan. That founder may need paid work before the other does. Personal savings are different from company cash.",
   },
   imbalance: {
     id: "imbalance",
-    title: "Silent 60/40 Drift",
+    title: "Roles and decision rights are unclear",
     tag: "Roles",
-    stat: "60/40 splits often feel ‘fair enough’ at signing, then drift: the 40% partner absorbs ops while the 60% partner keeps narrative control. Role charters are missing in most failed 60/40 cases.",
+    stat: "If founders have different ideas about who leads each part of the business, routine choices can turn into repeated disagreements.",
     story:
-      "A marketplace co-founding pair chose 60/40 because one had previously raised a seed. Roles were never written down. Two years later the 40% partner was CEO in practice but not on paper, and could not approve a pivot. The 60% partner blocked the hire of a COO. A bridge round collapsed when the lead asked who actually ran the company and got two different answers.",
+      "Example: Founders agree on an ownership split but do not write down who decides about product, hiring, or sales. Later, each may believe they have the final say on the same decision.",
   },
   trust: {
     id: "trust",
-    title: "Unspoken Concern Becomes the Deal",
-    tag: "Alignment",
-    stat: "In co-founder breakup interviews, the original ‘gut worry’ at signing — control, money, or commitment — is the same issue named in the post-mortem 70%+ of the time.",
+    title: "Unspoken concerns stay unresolved",
+    tag: "Working together",
+    stat: "A concern that is not discussed can remain unresolved even after founders sign an agreement.",
     story:
-      "A fintech pair papered a clean-looking split but never put the real fear on the table: one founder did not trust the other to stay after a competing offer. They used optimism as a substitute for vesting, cliff, and a good-leaver clause. The offer arrived in month 11. There was no cliff. There was no conversation script. There was only a cap table that no longer matched who was in the building.",
+      "Example: One founder worries their partner may leave but never raises the concern. Without an agreed plan for shares and responsibilities if someone departs, that question remains open.",
   },
 };
 
@@ -158,7 +158,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
     addDomainFinding(
       "commitment",
       7,
-      "Active erosion of trust post-transition (+7)",
+      "You said trust has worsened since you began working together (+7)",
       "active_risk",
     );
   } else if (
@@ -169,7 +169,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
     addDomainFinding(
       "commitment",
       7,
-      "Severe breach of mutual trust (+7)",
+      "You described a serious loss of trust (+7)",
       "active_risk",
     );
   }
@@ -183,7 +183,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
     addDomainFinding(
       "governance",
       4,
-      "Explicit acknowledgement of potential dispute (+4)",
+      "You said a disagreement may happen (+4)",
       "uncertainty",
     );
   }
@@ -193,7 +193,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
     addDomainFinding(
       "governance",
       3,
-      "Epistemic hedge on deadlock (+3)",
+      "You are unsure whether you could get stuck on a decision (+3)",
       "uncertainty",
     );
   }
@@ -207,7 +207,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
     addDomainFinding(
       "commitment",
       2,
-      "Unprompted denial of departure risk (+2)",
+      "You mentioned there is no evidence that someone plans to leave (+2)",
       "ambiguous",
     );
   }
@@ -230,7 +230,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "governance",
         7,
-        "Active governance deadlock / stalemate (+7)",
+        "You described a disagreement that has stopped a decision (+7)",
         "active_risk",
       );
     } else if (
@@ -241,7 +241,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "governance",
         7,
-        "Active dispute over control and voting rights (+7)",
+        "You described a dispute over who controls decisions (+7)",
         "active_risk",
       );
     } else if (
@@ -252,7 +252,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "governance",
         6,
-        "Governance deadlock / final decision dispute (+6)",
+        "You cannot agree on who makes the final decision (+6)",
         "active_risk",
       );
     } else if (
@@ -263,7 +263,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "governance",
         4,
-        "Governance tie-breaker uncertainty (+4)",
+        "You are unsure how you would settle a tie (+4)",
         "uncertainty",
       );
     } else if (
@@ -274,7 +274,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "governance",
         2,
-        "Unresolved control / governance discussion (+2)",
+        "You said decision authority still needs to be discussed (+2)",
         "ambiguous",
       );
     } else if (
@@ -285,7 +285,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "governance",
         0,
-        "Negated deadlock risk with agreed tie-breaker (+0)",
+        "You report having a way to resolve decision ties (+0)",
         "negated",
       );
     } else if (
@@ -296,7 +296,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "governance",
         0,
-        "Clear governance alignment (+0)",
+        "You report agreeing on how decisions are made (+0)",
         "positive",
       );
     }
@@ -310,7 +310,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "commitment",
         7,
-        "Active walk-away / abandonment threat (+7)",
+        "You described a founder leaving or threatening to leave (+7)",
         "active_risk",
       );
     } else if (
@@ -321,7 +321,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "commitment",
         4,
-        "Speculative concern regarding departure (+4)",
+        "You are worried that someone may leave (+4)",
         "uncertainty",
       );
     } else if (
@@ -332,7 +332,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "commitment",
         3,
-        "Part-time or split commitment noted (+3)",
+        "You said one founder works part-time or has another job (+3)",
         "uncertainty",
       );
     } else if (
@@ -343,7 +343,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "commitment",
         3,
-        "Ambiguous relationship / co-founder strain (+3)",
+        "You described tension or communication problems (+3)",
         "ambiguous",
       );
     } else if (
@@ -354,7 +354,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "commitment",
         0,
-        "Explicit negation of walk-away risk (+0)",
+        "You said both founders plan to stay and contribute (+0)",
         "negated",
       );
     } else if (
@@ -365,7 +365,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "commitment",
         0,
-        "Affirmed mutual trust & alignment (+0)",
+        "You report trusting each other and sharing a direction (+0)",
         "positive",
       );
     }
@@ -379,7 +379,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "equity",
         6,
-        "Active disagreement / dispute over equity terms (+6)",
+        "You described a disagreement about ownership or share terms (+6)",
         "active_risk",
       );
     } else if (
@@ -390,7 +390,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "equity",
         4,
-        "Labor vs ownership contribution mismatch (+4)",
+        "You said ongoing work may not match the ownership split (+4)",
         "uncertainty",
       );
     } else if (
@@ -401,7 +401,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "equity",
         3,
-        "Dilution and vesting schedule uncertainty (+3)",
+        "You are unsure how future share changes or earning shares over time would work (+3)",
         "uncertainty",
       );
     } else if (
@@ -412,7 +412,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "equity",
         2,
-        "Unfinalized or rushed equity agreement (+2)",
+        "The ownership split or plan for earning shares is not settled (+2)",
         "ambiguous",
       );
     } else if (
@@ -423,7 +423,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "equity",
         0,
-        "Negated equity / vesting concerns (+0)",
+        "You report no current disagreement about ownership or the share-earning plan (+0)",
         "negated",
       );
     } else if (
@@ -434,7 +434,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "equity",
         0,
-        "Affirmed equity fairness (+0)",
+        "You say the ownership split feels fair (+0)",
         "positive",
       );
     }
@@ -448,7 +448,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "financial",
         0,
-        "Negated financial distress (+0)",
+        "You said you are not under financial pressure (+0)",
         "negated",
       );
     } else if (
@@ -459,7 +459,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "financial",
         6,
-        "Acute personal cash insolvency and financial strain (+6)",
+        "You said personal savings are low or expenses may be hard to cover (+6)",
         "active_risk",
       );
     } else if (
@@ -470,7 +470,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "financial",
         3,
-        "Compensation/salary friction or tight runway (+3)",
+        "You raised a concern about pay or how long personal savings will last (+3)",
         "uncertainty",
       );
     } else if (
@@ -481,7 +481,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "financial",
         2,
-        "Uncertain cash flow or fundraising pressure (+2)",
+        "You said money or pay plans are unclear (+2)",
         "ambiguous",
       );
     } else if (
@@ -492,7 +492,7 @@ export function analyzeConcern(text: string): ConcernAnalysis {
       addDomainFinding(
         "financial",
         0,
-        "Affirmed financial stability (+0)",
+        "You reported having savings or funding in place (+0)",
         "positive",
       );
     }
@@ -557,46 +557,70 @@ function pickPatterns(inputs: DiagnosticInputs): FailurePattern[] {
 function buildScript(inputs: DiagnosticInputs): string {
   const splitLabel =
     inputs.equitySplit === "50-50"
-      ? "50/50"
+      ? "equal ownership"
       : inputs.equitySplit === "60-40"
-        ? "60/40"
-        : "70/30";
-  const vestLine =
+        ? "a 60/40 ownership split"
+        : inputs.equitySplit === "70-30"
+          ? "a 70/30 ownership split"
+          : "the ownership split we described";
+  const vestingLine =
     inputs.vesting === "none"
-      ? "we currently have no vesting, which means either of us could leave tomorrow and keep a full stake"
-      : "even with a standard vest, we should still write down what happens on deadlock, departure, and role drift";
-  const runwayLine =
-    inputs.runwayMonths < 12
-      ? `My personal runway is about ${inputs.runwayMonths} month${inputs.runwayMonths === 1 ? "" : "s"}, so I don’t want us to lock a fragile deal just to feel official.`
-      : `We’ve got some personal runway (${inputs.runwayMonths} months on my side), which is exactly when it’s easiest to skip the hard clauses.`;
+      ? "We have not agreed on a plan for founders to earn their shares over time."
+      : inputs.vesting === "standard"
+        ? "We selected a four-year plan for earning shares, with a one-year wait before any shares are earned."
+        : "We selected a custom plan for earning shares over time.";
+  const workLine =
+    inputs.commitmentLevel === "one-part-time"
+      ? "We should agree on each person's weekly hours and what would need to happen for the part-time founder to work more."
+      : inputs.commitmentLevel === "unclear"
+        ? "We should agree on each person's expected hours and responsibilities."
+        : inputs.commitmentLevel === "milestone-transition"
+          ? "We should write down the funding or revenue milestone that would change someone's work hours."
+          : "We should write down who is responsible for each major part of the work.";
+  const decisionLine =
+    inputs.decisionProtocol === "consensus-only"
+      ? "We should decide what happens if we cannot agree on a major decision."
+      : inputs.decisionProtocol === "undecided"
+        ? "We should decide who makes which calls and how we resolve a disagreement."
+        : inputs.decisionProtocol === "formal-tiebreaker"
+          ? "We should write down which decisions need the outside tie-breaker."
+          : "We should write down which decisions each person can make and which need both of us.";
   const concern = inputs.primaryConcern.trim();
   const concernLine = concern
-    ? `The thing I keep coming back to is: "${concern}". I’d rather put that on the table now than discover it in a post-mortem.`
-    : "I want us to name the real risks now rather than discover them after we sign.";
+    ? `You wrote that your main concern is: "${concern}"`
+    : "Let's start with anything either of us is still unsure about.";
 
-  return `I’ve been thinking about how we protect the company — and each other — before we sign.
+  return `I want us to agree on the important parts of working together before we sign anything.
 
-We’re looking at a ${splitLabel} split, and ${vestLine}. ${runwayLine}
+You selected ${splitLabel}. ${vestingLine} ${workLine}
 
-${concernLine}
+${concernLine}.
 
-Can we spend one focused conversation on three things: (1) 4-year vesting with a 1-year cliff if we don’t already have it, (2) a simple deadlock-break (casting vote, independent advisor, or shotgun after a cooling-off period), and (3) a written role charter we can revisit at 12 months? I’m not trying to unwind the partnership. I want the version of this that still works if one of us gets hit by a bus, a competing offer, or a bad quarter.
+Let's answer these questions:
+1. What does our ownership split mean if one of us leaves or our work changes?
+2. What weekly work and responsibilities do we each agree to?
+3. ${decisionLine}
+4. What do we still need to put in writing, and who will do it?
 
-Happy to draft a one-pager we both mark up.`;
+Before we finish, let's list what we have agreed on and what still needs an answer.`;
 }
 
 function summaryFor(score: number, inputs: DiagnosticInputs): string {
   const split =
     inputs.equitySplit === "50-50"
-      ? "equal ownership with no automatic tie-break"
+      ? "equal ownership"
       : inputs.equitySplit === "70-30"
-        ? "a steep ownership tilt that can sour as labor diverges"
-        : "a 60/40 tilt that often hides role ambiguity";
+        ? "a 70/30 ownership split"
+        : inputs.equitySplit === "60-40"
+          ? "a 60/40 ownership split"
+          : "a custom ownership split";
   const vest =
     inputs.vesting === "none"
-      ? "unvested equity — the highest-frequency landmine in founder post-mortems"
-      : "vesting in place, but other structural gaps still show up in failed companies";
-  return `Your Risk Exposure Index is ${score}. The model weights ${split}, plus ${vest}. Personal runway of ${inputs.runwayMonths} month${inputs.runwayMonths === 1 ? "" : "s"} ${inputs.runwayMonths < 12 ? "increases pressure to sign a fragile deal." : "reduces panic risk but does not erase structural gaps."}`;
+      ? "no plan for earning shares over time"
+      : inputs.vesting === "standard"
+        ? "a four-year plan for earning shares, with a one-year wait before earning any shares"
+        : "a custom plan for earning shares over time";
+  return `Your score is ${score} out of 100. It reflects risk signals in the answers you selected; it is not the chance that your business will fail. You reported ${split}, ${vest}, and personal savings that may cover about ${inputs.runwayMonths} month${inputs.runwayMonths === 1 ? "" : "s"} of expenses.`;
 }
 
 export function evaluateDimensions(
@@ -620,17 +644,17 @@ export function evaluateDimensions(
 
   const equityFinding =
     equityScore >= 70
-      ? "Steep disparity or unaligned expectations between ideation, capital, and ongoing sweat equity."
+      ? "Your selected ownership split and work pattern may not match. Agree how each founder's current and future work will count."
       : equityScore >= 50
-        ? "Equity split requires explicit contribution milestones to prevent future labor-ownership drift."
-        : "Equity distribution broadly reflects documented operational expectations.";
+        ? "Write down how the ownership split reflects each founder's work and when you will review it."
+        : "Your selected ownership split and work pattern appear broadly aligned. Put the agreement in writing.";
 
   const equityRec =
     inputs.contributionBalance === "idea-vs-execution"
-      ? "Institute an annual equity review clause tied to milestone delivery rather than historical ideation."
+      ? "Agree how the original idea and the ongoing work each count, and set a time to review contributions."
       : inputs.contributionBalance === "capital-vs-labor"
-        ? "Separate founder common shares from capital investment notes (SAFE/Convertible) so equity reflects labor."
-        : "Document role charters and contribution milestones in writing before formal signing.";
+        ? "Write down separately how money put in will be repaid or counted, and what work each founder is expected to do."
+        : "Write down each founder's role, expected work, and when you will review ownership.";
 
   // 2. Commitment and Contribution
   let commitScore = 35;
@@ -644,17 +668,17 @@ export function evaluateDimensions(
 
   const commitFinding =
     commitScore >= 70
-      ? "Substantial time or availability asymmetry risks one founder carrying the venture alone."
+      ? "One founder is working fewer hours, or the expected hours are unclear. Agree on each person's workload so one does not end up carrying most of the work."
       : commitScore >= 50
-        ? "Staggered transitions to full-time create vulnerable execution windows if revenue delays."
-        : "Full-time dedication is aligned across all co-founders.";
+        ? "One founder plans to change their work hours later. Agree on the milestone and what happens if it is delayed."
+        : "Both founders report working full-time.";
 
   const commitRec =
     inputs.commitmentLevel === "one-part-time"
-      ? "Set a strict contractual deadline for the part-time founder to go full-time, with proportional vesting adjustments if missed."
+      ? "Agree on weekly hours, responsibilities, and a date or milestone for changing to full-time. Decide what you will do if plans change."
       : inputs.commitmentLevel === "milestone-transition"
-        ? "Define objective capital or revenue triggers for full-time transition in your founder accord."
-        : "Maintain quarterly availability check-ins to catch silent operational drift early.";
+        ? "Write down the funding or revenue milestone that would change someone's work hours, and what happens if it is not reached."
+        : "Write down each person's responsibilities and check in regularly about workload.";
 
   // 3. Governance and Decision-Making
   let govScore = 35;
@@ -670,17 +694,17 @@ export function evaluateDimensions(
 
   const govFinding =
     govScore >= 70
-      ? "Consensus-only rule without a tie-breaker creates critical freeze exposure on hiring, pivots, and fundraising."
+      ? "If both founders must approve every major decision, or you have no agreed process, one disagreement can hold up important work."
       : govScore >= 50
-        ? "Informal division of decision authority needs explicit boundaries between operational and board matters."
-        : "Clear leadership hierarchy or third-party deadlock breaker minimizes governance stalemate.";
+        ? "Write down which decisions need both founders and who can make day-to-day choices."
+        : "You selected a named decision-maker or a tie-breaker. Write down which decisions that rule covers.";
 
   const govRec =
     inputs.decisionProtocol === "consensus-only"
-      ? "Designate an independent third-party advisor with a binding casting vote for structural deadlocks."
+      ? "Agree which decisions need both founders, who handles day-to-day choices, and what to do when you cannot agree."
       : inputs.decisionProtocol === "undecided"
-        ? "Write down domain autonomy immediately: CEO owns final commercial calls, CTO owns architecture."
-        : "Establish a 14-day formal cooling-off and mediation procedure before any shotgun dispute.";
+        ? "Choose who makes day-to-day decisions in each area and how you will settle disagreements."
+        : "Write down how your named leader or outside adviser will help resolve a disagreement, and which decisions the rule covers.";
 
   // 4. Financial Pressure
   let finScore = 30;
@@ -699,15 +723,15 @@ export function evaluateDimensions(
 
   const finFinding =
     finScore >= 70
-      ? "Acute personal cash constraints threaten to force panic fundraising, dilution, or sudden founder departure."
+      ? "Your answers point to limited personal savings or a near-term need for pay. Agree how that pressure could affect decisions; this score does not measure company cash."
       : finScore >= 50
-        ? "Disparate personal runways create misaligned risk tolerance when deciding whether to raise or bootstrap."
-        : "Adequate financial cushion gives the founding team room to negotiate from strength.";
+        ? "Your personal savings or pay expectations may affect how long each founder can wait. Discuss this separately from the company's cash."
+        : "Your answers suggest less immediate pressure around personal savings and pay. They do not tell us how much cash the company has.";
 
   const finRec =
     inputs.salaryExpectation === "immediate-salary-needed" || finScore >= 70
-      ? "Model emergency cash floors: agree on the exact date when outside consulting or an angel bridge must be initiated."
-      : "Pre-agree on founder salary tiers upon closing a seed round to prevent post-financing compensation disputes.";
+      ? "Agree when each founder may be paid and whether either needs outside work. Review company cash separately from personal savings."
+      : "Write down when founder pay can begin and make sure both founders agree on the same rule.";
 
   // 5. Trust and Communication
   let trustScore = 35;
@@ -724,16 +748,16 @@ export function evaluateDimensions(
 
   const trustFinding =
     trustScore >= 70
-      ? "Existing interpersonal friction or unaddressed suspicions threaten partnership cohesion under pressure."
+      ? "You report past tension. Agree on how to raise disagreements and work through them instead of assuming they will go away."
       : trustScore >= 50
-        ? "Untested partnership dynamic: founders have not yet stress-tested collaboration through an acute crisis."
-        : "High baseline transparency and demonstrated shared execution history.";
+        ? "You have not worked together for long. A small shared project can show how you handle deadlines and disagreements."
+        : "You report having built and delivered work together.";
 
   const trustRec =
     inputs.workingHistory === "new-collaborators" ||
     inputs.workingHistory === "untested"
-      ? "Complete a 30-day pre-incorporation trial sprint on a key milestone before executing final cap table paperwork."
-      : "Conduct a monthly 'unspoken issues' retrospective to air latent frustrations before they fester.";
+      ? "Try a short, clearly defined project together and review how you handle deadlines, feedback, and disagreements."
+      : "Set a regular time to discuss concerns and agree on how you will resolve disagreements.";
 
   // 6. Departure and Founder Protection
   let depScore = 35;
@@ -750,20 +774,20 @@ export function evaluateDimensions(
 
   const depFinding =
     depScore >= 70
-      ? "Critical vulnerability: a departing founder could walk away with significant equity, unassigned IP, or no buyout terms."
+      ? "Some rules for shares or leaving may be missing. Write down what happens to shares and work if a founder leaves."
       : depScore >= 50
-        ? "Basic vesting is planned, but IP assignment, buyback mechanisms, and good/bad leaver clauses are unresolved."
-        : "Comprehensive 4-year vesting, 1-year cliff, and explicit company repurchase rights protect the cap table.";
+        ? "You selected a plan for earning shares, but some rules about work ownership or leaving may still need to be written down."
+        : "You report having written rules for earning shares and what happens if someone leaves. Make sure both founders understand them.";
 
   const depRec =
     inputs.vesting === "none"
-      ? "Implement standard 4-year reverse vesting with a 1-year cliff immediately. Non-negotiable for institutional funding."
-      : "Ensure proprietary invention and IP assignment agreements (CIIAA) are signed concurrently with stock purchase agreements.";
+      ? "Agree on a written plan for when each founder earns shares and what happens if they leave. Ask a qualified startup lawyer to review it."
+      : "Check that your written agreement says who owns work made for the business and what happens to shares if someone leaves.";
 
   return [
     {
       key: "equityFairness",
-      label: "Equity Fairness",
+      label: "Ownership and fairness",
       score: equityScore,
       level: riskLevel(equityScore),
       finding: equityFinding,
@@ -771,7 +795,7 @@ export function evaluateDimensions(
     },
     {
       key: "commitment",
-      label: "Commitment & Contribution",
+      label: "Time and workload",
       score: commitScore,
       level: riskLevel(commitScore),
       finding: commitFinding,
@@ -779,7 +803,7 @@ export function evaluateDimensions(
     },
     {
       key: "governance",
-      label: "Governance & Decisions",
+      label: "Making decisions",
       score: govScore,
       level: riskLevel(govScore),
       finding: govFinding,
@@ -787,7 +811,7 @@ export function evaluateDimensions(
     },
     {
       key: "financialPressure",
-      label: "Financial Pressure",
+      label: "Personal money and pay",
       score: finScore,
       level: riskLevel(finScore),
       finding: finFinding,
@@ -795,7 +819,7 @@ export function evaluateDimensions(
     },
     {
       key: "trust",
-      label: "Trust & Communication",
+      label: "Trust and communication",
       score: trustScore,
       level: riskLevel(trustScore),
       finding: trustFinding,
@@ -803,7 +827,7 @@ export function evaluateDimensions(
     },
     {
       key: "departureProtection",
-      label: "Departure & Founder Protection",
+      label: "If someone leaves",
       score: depScore,
       level: riskLevel(depScore),
       finding: depFinding,
@@ -1077,11 +1101,6 @@ export function runDiagnostic(inputs: DiagnosticInputs): DiagnosticResult {
     concernAnalysis.weight;
   const score = clamp(Math.round(raw), 34, 94);
   const dimensions = evaluateDimensions(inputs, concernAnalysis.explanations);
-  const aiAnalysis = generateDeterministicInsights(
-    inputs,
-    dimensions,
-    concernAnalysis.explanations,
-  );
 
   return {
     score,
@@ -1091,21 +1110,20 @@ export function runDiagnostic(inputs: DiagnosticInputs): DiagnosticResult {
     script: buildScript(inputs),
     explanations: concernAnalysis.explanations,
     dimensions,
-    aiAnalysis,
   };
 }
 
 export const EQUITY_OPTIONS: { value: EquitySplit; label: string }[] = [
-  { value: "50-50", label: "50/50 Equal" },
-  { value: "60-40", label: "60/40 Split" },
-  { value: "70-30", label: "70/30 Split" },
-  { value: "custom", label: "Other / Custom Ratio" },
+  { value: "50-50", label: "50/50 — equal ownership" },
+  { value: "60-40", label: "60/40 ownership split" },
+  { value: "70-30", label: "70/30 ownership split" },
+  { value: "custom", label: "Another ownership split" },
 ];
 
 export const VESTING_OPTIONS: { value: VestingSchedule; label: string }[] = [
-  { value: "none", label: "No Vesting / Immediate" },
-  { value: "standard", label: "4-Year with 1-Year Cliff" },
-  { value: "custom", label: "Custom Phased Schedule" },
+  { value: "none", label: "Shares are assigned right away" },
+  { value: "standard", label: "Earn shares over 4 years; none in year one" },
+  { value: "custom", label: "Another plan for earning shares" },
 ];
 
 export const CONTRIBUTION_OPTIONS: {
@@ -1115,23 +1133,23 @@ export const CONTRIBUTION_OPTIONS: {
 }[] = [
   {
     value: "balanced",
-    label: "Balanced Workload & Shared Execution",
-    description: "Both co-founders share direct product, engineering, and commercial execution.",
+    label: "We do a similar amount of work",
+    description: "Both founders share the day-to-day work of building and running the business.",
   },
   {
     value: "idea-vs-execution",
-    label: "Originator / Idea vs. Primary Builder",
-    description: "One founder conceived the IP/vision; the other builds and runs daily operations.",
+    label: "One brought the idea; the other does most of the building",
+    description: "One founder came up with the idea; the other builds the product and handles daily work.",
   },
   {
     value: "capital-vs-labor",
-    label: "Capital Investor vs. Full Sweat Equity",
-    description: "One founder put in early capital/savings while the other works full-time unpaid.",
+    label: "One put in money; the other works without pay",
+    description: "One founder contributed money or savings while the other contributes unpaid work.",
   },
   {
     value: "experience-gap",
-    label: "Senior / Serial Founder vs. Junior Founder",
-    description: "One founder has prior exits or industry tenure; the other is earlier in career.",
+    label: "One has more startup or industry experience",
+    description: "One founder has more experience building businesses or working in this industry.",
   },
 ];
 
@@ -1142,23 +1160,23 @@ export const COMMITMENT_OPTIONS: {
 }[] = [
   {
     value: "both-full-time",
-    label: "Both Full-Time From Day One",
-    description: "Full working hours dedicated immediately with no outside employment.",
+    label: "Both work full-time from the start",
+    description: "Both founders can focus their working hours on this business.",
   },
   {
     value: "one-part-time",
-    label: "One Full-Time, One Part-Time",
-    description: "One partner is maintaining a salaried job or consulting on the side.",
+    label: "One works full-time; one works part-time",
+    description: "One founder has another job or consulting work as well.",
   },
   {
     value: "milestone-transition",
-    label: "Phased Transition on Funding",
-    description: "Transitioning to full-time only after closing an angel/pre-seed check.",
+    label: "Work hours change after a funding milestone",
+    description: "A founder plans to work more hours only after the business receives funding.",
   },
   {
     value: "unclear",
-    label: "Flexible / Not Explicitly Defined Yet",
-    description: "Hours and availability have not been contractually agreed upon.",
+    label: "We have not agreed on work hours yet",
+    description: "The founders have not agreed how much time each person will commit.",
   },
 ];
 
@@ -1169,23 +1187,23 @@ export const DECISION_OPTIONS: {
 }[] = [
   {
     value: "clear-ceo",
-    label: "Designated CEO With Domain Autonomy",
-    description: "Clear executive authority with explicit functional ownership (Tech vs. Business).",
+    label: "One founder leads agreed areas of work",
+    description: "One founder can make decisions in the areas both founders have assigned to them.",
   },
   {
     value: "consensus-only",
-    label: "Consensus Required on All Major Decisions",
-    description: "Both founders must agree on every major call; no unilateral voting.",
+    label: "Both founders must agree on major decisions",
+    description: "Neither founder can make a major decision alone.",
   },
   {
     value: "formal-tiebreaker",
-    label: "Independent Advisor / Board Tie-Breaker",
-    description: "Agreed independent third-party with casting vote on deadlocks.",
+    label: "An outside adviser breaks ties",
+    description: "An agreed adviser or board member helps decide when the founders cannot agree.",
   },
   {
     value: "undecided",
-    label: "No Formal Protocol Agreed Yet",
-    description: "We haven't discussed what happens when we disagree fundamentally.",
+    label: "We have not agreed what to do when we disagree",
+    description: "The founders have not decided how to settle an important disagreement.",
   },
 ];
 
@@ -1196,23 +1214,23 @@ export const SALARY_OPTIONS: {
 }[] = [
   {
     value: "both-unpaid",
-    label: "Both Work Unpaid (Sufficient Runway)",
-    description: "Both founders can survive on savings until the seed round.",
+    label: "Both can work without pay for now",
+    description: "Both founders say their personal savings can cover their expenses for now.",
   },
   {
     value: "immediate-salary-needed",
-    label: "One Founder Needs Immediate Income",
-    description: "One partner cannot afford to work unpaid for more than 1–2 months.",
+    label: "One founder needs income soon",
+    description: "One founder cannot keep working without pay for much longer.",
   },
   {
     value: "deferred-compensation",
-    label: "Accruing Deferred Salary Debt",
-    description: "Tracking unpaid market wages as company debt to be repaid post-funding.",
+    label: "Unpaid salary will be owed later",
+    description: "The founders expect the business to record unpaid salary and pay it later.",
   },
   {
     value: "different-runways",
-    label: "Asymmetric Runway (>6 Month Gap)",
-    description: "One founder has substantial savings; the other has tight personal runway.",
+    label: "Personal savings differ by more than 6 months",
+    description: "One founder can cover personal expenses much longer than the other.",
   },
 ];
 
@@ -1223,23 +1241,23 @@ export const HISTORY_OPTIONS: {
 }[] = [
   {
     value: "shipped-together",
-    label: "Shipped Real Projects Together Before",
-    description: "Proven track record of building and delivering under real deadlines.",
+    label: "We have completed projects together",
+    description: "The founders have built and finished projects together before.",
   },
   {
     value: "new-collaborators",
-    label: "Recently Met (Matching / Hackathon)",
-    description: "Early partnership; dynamic still untested under acute crisis pressure.",
+    label: "We met recently and have little work history",
+    description: "The founders have not worked together for long.",
   },
   {
     value: "past-tensions",
-    label: "Navigated Past Disagreements, Friction Remains",
-    description: "Strong alignment overall, but some past communication scar tissue.",
+    label: "We have worked through disagreements, but some tension remains",
+    description: "The founders have resolved disagreements before, but still have some tension.",
   },
   {
     value: "untested",
-    label: "Friends or Colleagues, Never Co-Founded",
-    description: "Great personal relationship, but unproven as business fiduciaries.",
+    label: "We are friends or colleagues, but have not started a business together",
+    description: "The founders know each other but have not worked together as business owners.",
   },
 ];
 
@@ -1250,22 +1268,22 @@ export const DEPARTURE_OPTIONS: {
 }[] = [
   {
     value: "market-standard",
-    label: "Market-Standard Vesting, IP Assignment & Repurchase",
-    description: "4-year vest, 1-year cliff, written CIIAA, customary good/bad leaver buyback.",
+    label: "Written rules cover shares, work ownership, and leaving",
+    description: "The founders report having written terms for earning shares, ownership of work, and what happens if someone leaves.",
   },
   {
     value: "vesting-only",
-    label: "Vesting Agreed, IP & Buyout Unsigned",
-    description: "Vesting schedule chosen, but legal IP assignment and buyout terms are unwritten.",
+    label: "Share plan agreed; work ownership or buyout terms are unsigned",
+    description: "The founders chose how shares are earned, but have not signed all work-ownership or buyout terms.",
   },
   {
     value: "no-formal-terms",
-    label: "Handshake Deal (No Written Terms)",
-    description: "No formal founder agreement or IP protection executed yet.",
+    label: "No written founder terms yet",
+    description: "The founders have not signed a written agreement covering their partnership.",
   },
   {
     value: "in-discussion",
-    label: "Currently Negotiating With Counsel",
-    description: "Drafting shareholder accord and founder documentation now.",
+    label: "Working with a lawyer on written terms",
+    description: "The founders are preparing a written agreement with a lawyer.",
   },
 ];

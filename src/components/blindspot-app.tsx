@@ -18,6 +18,7 @@ import type {
 import { DiagnosticForm } from "./diagnostic-form";
 import { DiagnosticReport } from "./diagnostic-report";
 import { NavBar } from "./nav-bar";
+import { SiteFooter } from "./site-footer";
 
 export function BlindspotApp() {
   const [equitySplit, setEquitySplit] = useState<EquitySplit>("50-50");
@@ -37,14 +38,26 @@ export function BlindspotApp() {
   const [departureTerms, setDepartureTerms] =
     useState<DepartureTerms>("no-formal-terms");
   const [customSplitText, setCustomSplitText] = useState("");
-  const [aiConsent, setAiConsent] = useState(false);
 
   const [analyzing, setAnalyzing] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [result, setResult] = useState<DiagnosticResult | null>(null);
-  const [leadEmail, setLeadEmail] = useState("");
-  const [leadState, setLeadState] = useState<"idle" | "sent">("idle");
+  const [stage, setStage] = useState<"form" | "loading" | "results">("form");
   const reportAnchor = useRef<HTMLDivElement>(null);
   const submissionInProgress = useRef(false);
+
+  function scrollToTop(behavior: "auto" | "smooth") {
+    if (behavior === "auto") {
+      window.scrollTo(0, 0);
+      return;
+    }
+
+    try {
+      window.scrollTo({ top: 0, behavior });
+    } catch {
+      window.scrollTo(0, 0);
+    }
+  }
 
   async function onSubmit() {
     if (submissionInProgress.current) return;
@@ -60,92 +73,151 @@ export function BlindspotApp() {
     ) return;
 
     submissionInProgress.current = true;
-    setAnalyzing(true);
+    let initialResult: DiagnosticResult | null = null;
+    let timeoutId: number | null = null;
+    let apiRequestInitiated = false;
 
-    const inputs: DiagnosticInputs = {
-      equitySplit,
-      vesting,
-      runwayMonths: months,
-      primaryConcern,
-      contributionBalance,
-      commitmentLevel,
-      decisionProtocol,
-      salaryExpectation,
-      workingHistory,
-      departureTerms,
-      customSplitText: equitySplit === "custom" ? customSplitText : undefined,
-    };
+    setSubmissionError(null);
+    setResult(null);
 
-    // Calculate authoritative deterministic baseline
-    const initialResult = runDiagnostic(inputs);
+    try {
+      setAnalyzing(true);
+      setStage("loading");
+      scrollToTop("auto");
 
-    if (aiConsent) {
-      const controller = new AbortController();
-      const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+      const inputs: DiagnosticInputs = {
+        equitySplit,
+        vesting,
+        runwayMonths: months,
+        primaryConcern,
+        contributionBalance,
+        commitmentLevel,
+        decisionProtocol,
+        salaryExpectation,
+        workingHistory,
+        departureTerms,
+        customSplitText: equitySplit === "custom" ? customSplitText : undefined,
+      };
 
-      try {
-        const response = await fetch("/api/analyze", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            inputs,
-            aiConsent: true,
-          }),
-          signal: controller.signal,
-        });
+      initialResult = runDiagnostic(inputs);
+      initialResult.aiStatus = "unavailable";
 
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.analysis) {
-            const aiData = data.analysis as AIAnalysisResult;
-            initialResult.aiAnalysis = aiData;
-            if (aiData.customizedScript) {
-              initialResult.script = aiData.customizedScript;
-            }
+      const controller =
+        typeof AbortController === "undefined" ? null : new AbortController();
+      if (controller) {
+        timeoutId = window.setTimeout(() => controller.abort(), 25000);
+      }
+
+      apiRequestInitiated = true;
+      const requestOptions: RequestInit = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ inputs }),
+      };
+      if (controller) {
+        requestOptions.signal = controller.signal;
+      }
+      const response = await fetch("/api/analyze", {
+        ...requestOptions,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.analysis) {
+          const aiData = data.analysis as AIAnalysisResult;
+          initialResult.aiAnalysis = aiData;
+          initialResult.aiStatus = "available";
+          if (aiData.customizedScript) {
+            initialResult.script = aiData.customizedScript;
           }
+        } else {
+          const failureData = data as
+            | {
+                failureKind?: DiagnosticResult["aiFailure"];
+                message?: string;
+              }
+            | null;
+          initialResult.aiFailure =
+            failureData?.failureKind ?? "api_error";
+          initialResult.aiFailureMessage =
+            failureData?.message ??
+            "The analysis service returned no valid result.";
         }
-      } catch {
-        // AI is optional; the deterministic result is always returned.
-      } finally {
+      } else {
+        const data = await response.json().catch(() => null) as
+          | {
+              failureKind?: DiagnosticResult["aiFailure"];
+              message?: string;
+            }
+          | null;
+        initialResult.aiFailure = data?.failureKind ?? "api_error";
+        initialResult.aiFailureMessage =
+          data?.message ??
+          `The analysis request failed with status ${response.status}.`;
+      }
+    } catch (error) {
+      if (initialResult && error instanceof Error && error.name === "AbortError") {
+        initialResult.aiFailure = "timeout";
+        initialResult.aiFailureMessage = "The analysis request timed out.";
+      } else if (initialResult) {
+        initialResult.aiFailure = "api_error";
+        initialResult.aiFailureMessage = apiRequestInitiated
+          ? "The analysis request could not be completed. Check your connection."
+          : "The analysis could not be prepared in this browser.";
+      } else {
+        setSubmissionError(
+          "Blindspot could not prepare the analysis. Your answers are still available; please try again.",
+        );
+      }
+    } finally {
+      if (timeoutId !== null) {
         window.clearTimeout(timeoutId);
       }
+      submissionInProgress.current = false;
+      setAnalyzing(false);
     }
 
-    submissionInProgress.current = false;
-    setAnalyzing(false);
-    setResult(initialResult);
-    window.setTimeout(() => {
-      reportAnchor.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 50);
+    if (initialResult) {
+      setResult(initialResult);
+      setStage("results");
+      scrollToTop("auto");
+    } else {
+      setResult(null);
+      setStage("form");
+    }
+  }
+
+  function returnToForm() {
+    setResult(null);
+    setStage("form");
+    scrollToTop("smooth");
   }
 
   return (
-    <div id="top" className="relative min-h-full overflow-x-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(34,211,238,0.12),transparent_50%),radial-gradient(ellipse_at_bottom_right,_rgba(99,102,241,0.16),transparent_45%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.05)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
+    <div
+      id="top"
+      className="relative min-h-full overflow-x-hidden bg-background text-foreground"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(115,144,118,0.08),transparent_50%)]" />
 
       <NavBar />
 
-      <main className="relative">
-        <section className="mx-auto max-w-6xl px-4 pb-10 pt-14 sm:px-6 sm:pt-20">
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
-            High-stakes co-founder decisions, stress-tested against failure data
-          </p>
-          <h1 className="max-w-3xl font-serif text-4xl leading-tight tracking-tight text-slate-50 sm:text-6xl">
-            Catch the landmines before you sign.
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg">
-            Blindspot matches your co-founder equity, governance, and financial arrangements against real-world post-mortems and Gemini risk intelligence to reveal what breaks before you commit.
-          </p>
-        </section>
+      <main className="relative min-h-[calc(100vh-4rem)]">
+        {stage === "form" ? (
+          <section className="mx-auto max-w-6xl px-4 pb-6 pt-10 sm:px-6 sm:pb-8 sm:pt-14">
+            <h1 className="max-w-3xl font-serif text-3xl leading-tight tracking-tight text-brand-forest sm:text-4xl">
+              Your founder partnership assessment
+            </h1>
+            <p className="mt-3 max-w-2xl text-base leading-7 text-brand-muted">
+              Let’s understand how you and your co-founder plan to work together.
+            </p>
+          </section>
+        ) : null}
 
         <DiagnosticForm
+          stage={stage}
           equitySplit={equitySplit}
           vesting={vesting}
           runwayMonths={runwayMonths}
@@ -158,7 +230,7 @@ export function BlindspotApp() {
           departureTerms={departureTerms}
           customSplitText={customSplitText}
           analyzing={analyzing}
-          aiConsent={aiConsent}
+          submissionError={submissionError}
           onEquity={setEquitySplit}
           onVesting={setVesting}
           onRunway={setRunwayMonths}
@@ -170,22 +242,36 @@ export function BlindspotApp() {
           onHistory={setWorkingHistory}
           onDeparture={setDepartureTerms}
           onCustomSplit={setCustomSplitText}
-          onAiConsent={setAiConsent}
           onSubmit={onSubmit}
         />
 
-        <div ref={reportAnchor}>
-          {result ? (
+        {stage === "loading" ? (
+          <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-3xl items-center justify-center px-6 py-16">
+            <div className="w-full rounded-3xl border border-brand-line bg-brand-surface p-8 text-center shadow-[0_16px_48px_rgba(25,61,46,0.08)] sm:p-12">
+              <span className="mx-auto block h-10 w-10 animate-spin rounded-full border-2 border-brand-sage/20 border-t-brand-sage" />
+              <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-brand-sage-deep">
+                Step 2 · Reviewing your answers
+              </p>
+              <h1 className="mt-3 text-2xl font-semibold text-brand-forest sm:text-3xl">
+                Checking the partnership structure
+              </h1>
+              <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-brand-muted">
+                Calculating your score and asking Groq to review the risks in your answers.
+              </p>
+            </div>
+          </section>
+        ) : null}
+
+        {stage === "results" && result ? (
+          <div ref={reportAnchor} className="transition-opacity duration-300">
             <DiagnosticReport
               result={result}
-              leadEmail={leadEmail}
-              setLeadEmail={setLeadEmail}
-              leadState={leadState}
-              onLeadSubmit={() => setLeadState("sent")}
+              onEdit={returnToForm}
             />
-          ) : null}
-        </div>
+          </div>
+        ) : null}
       </main>
+      <SiteFooter variant="assessment" />
     </div>
   );
 }
